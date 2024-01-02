@@ -1,1 +1,1 @@
-docker build . --platform linux/arm64 -t omnitool_pi
+docker build . --platform linux/arm64 -t manusapiens/omnitool_pi

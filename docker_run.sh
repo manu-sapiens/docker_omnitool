@@ -1,1 +1,1 @@
-docker run -p 4444:4444 omnitool_pi
+docker run -p 4444:4444 manusapiens/omnitool_pi

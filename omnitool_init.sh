@@ -1,11 +1,14 @@
 #!/bin/bash
-echo "[->] START v0000.64"
-ls -l | cat
-echo "[->] UPDATE OMNITOOL if needed"
+echo "---------------------"
+echo "[->] START v0000.64b"
+echo "Top-level container directory:"
+ls -l
 cd ./omnitool
-ls -l | cat
-git pull | cat
+echo "./omnitool container directory:"
+ls -l
 
+echo "[->] UPDATE OMNITOOL if needed"
+git pull
 output=$(git pull)
 if echo "$output" | grep -q "Already up to date."; then
   echo "The repository is already up to date."
@@ -18,13 +21,9 @@ else
   echo "[->] YARN BUILD"
   yarn build
 
-
-  #echo "[->] YARN INSTALL"
-  #yarn install
-
   #echo "[->] Updating permissions"
-  chmod -R 0777 .
-  chown -Rh node:node .
+  #chmod -R 0777 .
+  #chown -Rh node:node .
 fi
 
 echo "[->] YARN START "

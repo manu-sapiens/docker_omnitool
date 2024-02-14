@@ -1,3 +1,4 @@
+# ver 1.03
 FROM node:21.2.0
 
 USER node
@@ -10,6 +11,8 @@ RUN cd omnitool && yarn install
 #RUN chmod -R 0777 /app
 #RUN chown -Rh node:node /app
 #COPY --chown=node ./patches /app/omnitool/
+
+
 
 COPY --chown=node . /app
 

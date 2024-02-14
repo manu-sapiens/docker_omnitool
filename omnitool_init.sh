@@ -1,30 +1,15 @@
 #!/bin/bash
-echo "---------------------"
-echo "[->] START v0000.64b"
-echo "Top-level container directory:"
-ls -l
-cd ./omnitool
-echo "./omnitool container directory:"
-ls -l
+echo "[->] START v0001.0003 (git stash version)"
 
-echo "[->] UPDATE OMNITOOL if needed"
-git pull
-output=$(git pull)
-if echo "$output" | grep -q "Already up to date."; then
-  echo "The repository is already up to date."
+if [ ! -p ./tmp/logpipe ]; then
+  echo "Creating pipe"
+  mkfifo ./tmp/logpipe
 else
-  echo "New data was fetched."
-
-  echo "[->] YARN INSTALL"
-  yarn install
-
-  echo "[->] YARN BUILD"
-  yarn build
-
-  #echo "[->] Updating permissions"
-  #chmod -R 0777 .
-  #chown -Rh node:node .
+  echo "Pipe already exists"
 fi
 
-echo "[->] YARN START "
-yarn start -u -rb -R blocks
+cd ./omnitool
+git stash
+git pull
+echo "[->] YARN START (into a pipe)"
+yarn start -u -rb -R blocks --noupdate -ll 2 > ../tmp/logpipe 2>&1 &

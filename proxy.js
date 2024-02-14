@@ -1,6 +1,7 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { spawn } = require('child_process');
+const { spawn , execSync} = require('child_process');
+const fs = require('fs');
 
 const app = express();
 
@@ -15,7 +16,6 @@ const omnitoolProxyMiddleware = createProxyMiddleware({
     ws: true // if you need WebSocket support
 });
 
-
 // Use the proxy middleware
 app.use(omnitoolProxyMiddleware);
 
@@ -24,21 +24,46 @@ app.listen(PROXY_PORT_OMNITOOL, () => {
     console.log(`Server running on port ${PROXY_PORT_OMNITOOL}`);
 });
 
+function readFromPipe() 
+{
+    console.log('Reading from pipe')
+    const readStream = fs.createReadStream('./tmp/logpipe', 'utf8');
+    readStream.on('data', (chunk) => {
+        console.log(`[pipe] ${chunk}`);
+    });
+}          
 async function startOmnitoolServer()
 {
-
+    
     console.log('Starting Omnitool Server...');
     return new Promise((resolve, reject) =>
     {
+
+        // check if the named pipe exists
+        if (fs.existsSync('./tmp/logpipe') == false)
+        {
+            // Create the named pipe
+            execSync('mkfifo ./tmp/logpipe');
+        }
+        else
+        {
+            console.log('Pipe exists');
+        }
+
         const omnitoolStartProcess = spawn(OMNITOOL_INSTALL_SCRIPT);
         omnitoolStartProcess.stdout.on('data', (data) =>
         {
-            console.log(`[log] ${data}`);
+            console.log(`[log] ${data}`);    
         });
 
         omnitoolStartProcess.stderr.on('data', (data) =>
         {
             console.error(`[stderr] ${data}`);
+        });
+
+        omnitoolStartProcess.on('spawn', () => {
+            console.log('Omnitool server process started. Reading from pipe');
+            readFromPipe();
         });
 
         omnitoolStartProcess.on('close', (code) =>
